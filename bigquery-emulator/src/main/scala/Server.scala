@@ -5,12 +5,11 @@ import java.util.concurrent.Executors
 import sttp.tapir.*
 import sttp.tapir.server.netty.sync.NettySyncServer
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
-import sttp.tapir.server.netty.{NettyFutureServerInterpreter, FutureRoute}
+import sttp.tapir.server.netty.{FutureRoute, NettyFutureServerInterpreter}
 import sttp.tapir.files.*
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-
 
 import sttp.shared.Identity
 import sttp.tapir.server.netty.NettyFutureServer
@@ -42,6 +41,7 @@ import io.netty.handler.codec.http.HttpServerCodec
 import org.playframework.netty.http.HttpStreamsServerHandler
 import io.netty.handler.codec.http.HttpContentDecompressor
 import io.netty.handler.logging.LoggingHandler
+import io.netty.handler.logging.LogLevel
 // first interpret as swagger ui endpoints, backend by the appropriate yaml
 
 object Server extends KyoApp:
@@ -50,62 +50,41 @@ object Server extends KyoApp:
   import scala.concurrent.duration._
   import scala.util._
 
-
-  val swaggerEndpoints = SwaggerInterpreter().fromEndpoints[Future](BigQueryEndpoints.generatedEndpoints, "BigQuery Emulator", "0.0.1")
-  println("Got swagger endpoints")
-
-  val serverEndpoints = swaggerEndpoints ++ List(
-    staticResourceGetServerEndpoint("$discovery" / "rest")(this.getClass.getClassLoader, "discovery.json"),
-    createTable.serverLogic[Future](_ => Future.successful(Right(Table())))
-  )
-
-  //println(serverEndpoints.map(_.show).mkString("\n"))
+  val swaggerEndpoints =
+    SwaggerInterpreter().fromEndpoints[Future](BigQueryEndpoints.generatedEndpoints, "BigQuery Emulator", "0.0.1")
 
   val clock =
     import AllowUnsafe.embrace.danger
     Clock(Clock.Unsafe(Executors.newSingleThreadScheduledExecutor()))
 
   val options =
-      NettyKyoServerOptions
-          .default(enableLogging = true)
-          .forkExecution(false)
-          .prependInterceptor(RequestInterceptor.transformServerRequest(request => {
-            //println(s"Request: $request")
-            request
-          }))
-          .appendInterceptor(RequestInterceptor.transformResult[kyo.internal.KyoSttpMonad.M](new RequestResultTransform[kyo.internal.KyoSttpMonad.M] {
-            def apply[A](request: ServerRequest, result: RequestResult[A]): kyo.internal.KyoSttpMonad.M[RequestResult[A]] = {
-              //println(s"Result: $result")
-              result match {
-                case RequestResult.Failure(e) =>
-                  println(s"Failure: $e")
-                case RequestResult.Response(e) => ()
-              }
-              result
-            }
-          }))
+    NettyKyoServerOptions
+      .customiseInterceptors(enableLogging = true)
+      .serverLog(NettyKyoServerOptions.defaultServerLog.copy(logWhenReceived = true, logWhenHandled = true))
+      .options
+      .forkExecution(false)
+
   final val ServerCodecHandlerName = "serverCodecHandler"
-  final val WebSocketControlFrameHandlerName = "wsControlFrameHandler"
   def decompressingInitPipeline(cfg: NettyConfig)(pipeline: ChannelPipeline, handler: ChannelHandler): Unit = {
     cfg.sslContext.foreach(s => pipeline.addLast(s.newHandler(pipeline.channel().alloc())))
     pipeline.addLast(ServerCodecHandlerName, new HttpServerCodec())
     pipeline.addLast("decompressor", new HttpContentDecompressor())
     pipeline.addLast(new HttpStreamsServerHandler())
     pipeline.addLast(handler)
-    if (cfg.addLoggingHandler) pipeline.addLast(new LoggingHandler())
+    if (cfg.addLoggingHandler) pipeline.addLast(new LoggingHandler(LogLevel.DEBUG))
     ()
   }
   val cfg =
-      NettyConfig.default
-          .initPipeline(decompressingInitPipeline)
-          .withSocketKeepAlive
-          .copy(lingerTimeout = Some(1.seconds))
-          .withGracefulShutdownTimeout(1.seconds)
-          .withAddLoggingHandler
+    NettyConfig.default
+      .initPipeline(decompressingInitPipeline)
+      .withSocketKeepAlive
+      .copy(lingerTimeout = Some(1.seconds))
+      .withGracefulShutdownTimeout(1.seconds)
+      .withAddLoggingHandler
 
   val server =
-      NettyKyoServer(options, cfg)
-          .host("0.0.0.0")
+    NettyKyoServer(options, cfg)
+      .host("0.0.0.0")
 
   run {
     defer {

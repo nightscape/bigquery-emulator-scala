@@ -7,10 +7,10 @@ object Main {
   def mainy(args: Array[String]): Unit = {
     println("Hello, world!")
 
-    //JniChannelProvider.load()
+    // JniChannelProvider.load()
     val parsed = Parser.parseStatement("SELECT name FROM users", new LanguageOptions())
     val q = parsed.asInstanceOf[ASTNodes.ASTQueryStatement]
-    //parsed.accept(null)
+    // parsed.accept(null)
     println(parsed)
 
   }

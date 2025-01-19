@@ -21,9 +21,7 @@ class QueryRewriter(duckDBCatalog: DuckDBCatalog) {
         createTableStmt.getName
           .getNames()
           .asScala // e.g. ["myproject", "mydataset", "mytable"]
-      val duckSchema = flattenProjectAndDataset(
-        tablePath.take(tablePath.size - 1).mkString(".")
-      )
+      val duckSchema = flattenProjectAndDataset(tablePath.take(tablePath.size - 1).mkString("."))
       val tableName = tablePath.last
       val columns = extractColumnsFromAst(createTableStmt)
       duckDBCatalog.createTable(duckSchema, tableName.toString(), columns)
@@ -31,9 +29,7 @@ class QueryRewriter(duckDBCatalog: DuckDBCatalog) {
 
     // ... and so on for other DDL statements
     case ddl =>
-      throw new UnsupportedOperationException(
-        s"DDL statement not yet supported: $ddl"
-      )
+      throw new UnsupportedOperationException(s"DDL statement not yet supported: $ddl")
   }
 
   private def flattenProjectAndDataset(pathString: String): String = {
@@ -41,9 +37,7 @@ class QueryRewriter(duckDBCatalog: DuckDBCatalog) {
     pathString.replace('.', '_')
   }
 
-  private def extractColumnsFromAst(
-      stmt: ASTCreateTableStatement
-  ): Map[String, String] = {
+  private def extractColumnsFromAst(stmt: ASTCreateTableStatement): Map[String, String] = {
     // Walk the AST or resolved AST to figure out columns and types.
     // For demonstration, return an empty map or stub it out.
     Map.empty

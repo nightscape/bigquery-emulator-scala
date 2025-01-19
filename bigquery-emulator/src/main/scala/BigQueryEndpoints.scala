@@ -15,7 +15,7 @@ object BigQueryEndpoints {
       oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[ErrorResponse].description("not found"))),
       oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[ErrorResponse].description("bad request"))),
       oneOfVariant(statusCode(StatusCode.Unauthorized).and(jsonBody[ErrorResponse].description("unauthorized"))),
-      //oneOfVariant(statusCode(StatusCode.NoContent).and(emptyOutputAs(StatusNoContent))),
+      // oneOfVariant(statusCode(StatusCode.NoContent).and(emptyOutputAs(StatusNoContent))),
       oneOfDefaultVariant(jsonBody[ErrorResponse].description("internal server error"))
     )
   )
@@ -136,6 +136,7 @@ object KyoEndpoints {
       .value(
         Route(staticResourceGetServerEndpoint("$discovery" / "rest")(this.getClass.getClassLoader, "discovery.json"))
       )
-      .unit.now
+      .unit
+      .now
   }
 }

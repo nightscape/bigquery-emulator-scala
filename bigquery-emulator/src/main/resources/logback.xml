@@ -5,9 +5,18 @@
         </encoder>
     </appender>
 
+    <appender name="SHORT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- Set logging levels -->
     <logger name="io.netty" level="INFO"/>
     <logger name="sttp.tapir" level="INFO"/>
+    <logger name="sttp.tapir.server" level="DEBUG" additivity="false">
+        <appender-ref ref="SHORT" />
+    </logger>
     <logger name="dev.mauch.bqemulator" level="INFO"/>
 
     <root level="DEBUG">
