@@ -1,0 +1,53 @@
+package build.`bigquery-emulator`
+
+import mill._, scalalib._, scalafmt._, publish._
+
+
+trait TapirModule extends SbtModule with ScalafmtModule with PublishModule {
+  def moduleDeps = Seq(build.zetasql)
+  def scalaVersion = "3.6.2"
+
+  def pomSettings = PomSettings(
+    description = "bigquery-emulator",
+    organization = "dev.mauch",
+    url = "https://github.com/nightscape/bigquery-emulator",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("nightscape", "bigquery-emulator"),
+    developers = Seq(
+      Developer("nightscape", "Martin Mauch", "https://github.com/nightscape")
+    )
+  )
+
+  def publishVersion: mill.T[String] = T("0.0.1")
+
+  override def scalacOptions = super.scalacOptions() ++ Seq("-Xmax-inlines", "500")
+  def ivyDeps = Agg(
+    ivy"com.lihaoyi::upickle:4.1.0",
+    ivy"com.softwaremill.sttp.tapir::tapir-core:1.11.12",
+    ivy"com.softwaremill.sttp.tapir::tapir-netty-server-sync:1.11.12",
+    ivy"com.softwaremill.sttp.tapir::tapir-json-upickle:1.11.12",
+    ivy"com.softwaremill.sttp.tapir::tapir-swagger-ui-bundle:1.11.12",
+    ivy"com.softwaremill.sttp.tapir::tapir-openapi-docs:1.11.12",
+    ivy"com.softwaremill.sttp.tapir::tapir-files:1.11.12",
+    ivy"io.getkyo::kyo-prelude:0.16.1",
+    ivy"io.getkyo::kyo-core:0.16.1",
+    ivy"io.getkyo::kyo-direct:0.16.1",
+    ivy"io.getkyo::kyo-combinators:0.16.1",
+    ivy"io.getkyo::kyo-tapir:0.16.1",
+    ivy"ch.qos.logback:logback-classic:1.4.11"
+  )
+
+  object test extends SbtTests {
+    val hedgehogVersion = "0.11.0"
+    def ivyDeps = Agg(
+      ivy"qa.hedgehog::hedgehog-core:$hedgehogVersion",
+      ivy"qa.hedgehog::hedgehog-runner:$hedgehogVersion",
+      ivy"qa.hedgehog::hedgehog-sbt:$hedgehogVersion",
+      ivy"com.google.cloud:google-cloud-bigquery:2.46.0",
+    )
+
+    def testFramework = "hedgehog.sbt.Framework"
+  }
+}
+
+object `package` extends RootModule with TapirModule

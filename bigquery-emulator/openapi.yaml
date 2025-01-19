@@ -1,0 +1,572 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: BigQuery Emulator
+    url: https://github.com/goccy/bigquery-emulator
+  description: |
+    An emulator for Google BigQuery API that provides a local development environment
+    for testing and development purposes.
+  title: BigQuery Emulator API
+  version: 1.0.0
+servers:
+- description: Default local development server
+  url: http://localhost:9050
+paths:
+  /bigquery/v2/projects/{projectId}/datasets:
+    get:
+      description: Lists all datasets in the specified project
+      operationId: listDatasets
+      parameters:
+      - description: Project ID
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDatasets200response'
+          description: Successful response
+      summary: List Datasets
+    post:
+      description: Creates a new empty dataset
+      operationId: createDataset
+      parameters:
+      - description: Project ID
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dataset'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+          description: Dataset created successfully
+      summary: Create Dataset
+  /bigquery/v2/projects/{projectId}/datasets/{datasetId}:
+    delete:
+      description: Deletes the dataset specified by datasetId
+      operationId: deleteDataset
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: If true, delete all the tables in the dataset
+        explode: true
+        in: query
+        name: deleteContents
+        required: false
+        schema:
+          type: boolean
+        style: form
+      responses:
+        '200':
+          description: Dataset deleted successfully
+      summary: Delete Dataset
+    get:
+      description: Returns the dataset specified by datasetID
+      operationId: getDataset
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+          description: Successful response
+      summary: Get Dataset
+  /bigquery/v2/projects/{projectId}/datasets/{datasetId}/tables:
+    get:
+      description: Lists all tables in the specified dataset
+      operationId: listTables
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTables200response'
+          description: Successful response
+      summary: List Tables
+    post:
+      description: Creates a new, empty table in the dataset
+      operationId: createTable
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Table'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: Table created successfully
+      summary: Create Table
+  /bigquery/v2/projects/{projectId}/datasets/{datasetId}/tables/{tableId}:
+    delete:
+      description: Deletes the table specified by tableId from the dataset
+      operationId: deleteTable
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: tableId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          description: Table deleted successfully
+      summary: Delete Table
+    get:
+      description: Gets the specified table resource by table ID
+      operationId: getTable
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: datasetId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: tableId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: Successful response
+      summary: Get Table
+  /bigquery/v2/projects/{projectId}/jobs:
+    post:
+      description: Starts a new asynchronous job
+      operationId: createJob
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Job created successfully
+      summary: Create Job
+  /bigquery/v2/projects/{projectId}/jobs/{jobId}:
+    get:
+      description: Returns information about a specific job
+      operationId: getJob
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: jobId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      summary: Get Job
+  /bigquery/v2/projects/{projectId}/queries:
+    post:
+      description: Runs a BigQuery SQL query and returns results if the query completes within a specified timeout
+      operationId: runQuery
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+          description: Query results
+      summary: Query
+components:
+  schemas:
+    Dataset:
+      properties:
+        datasetReference:
+          $ref: '#/components/schemas/DatasetReference'
+        friendlyName:
+          type: string
+        id:
+          type: string
+        kind:
+          type: string
+        location:
+          type: string
+        creationTime:
+          format: int64
+          type: string
+      type: object
+    Table:
+      properties:
+        tableReference:
+          $ref: '#/components/schemas/TableReference'
+        schema:
+          $ref: '#/components/schemas/TableSchema'
+        type:
+          enum:
+          - TABLE
+          - VIEW
+          - EXTERNAL
+          - MATERIALIZED_VIEW
+          - SNAPSHOT
+          type: string
+        creationTime:
+          format: int64
+          type: string
+        expirationTime:
+          format: int64
+          type: string
+        lastModifiedTime:
+          format: int64
+          type: string
+      type: object
+    TableFieldSchema:
+      properties:
+        name:
+          type: string
+        type:
+          enum:
+          - STRING
+          - INTEGER
+          - FLOAT
+          - BOOLEAN
+          - TIMESTAMP
+          - RECORD
+          - DATE
+          type: string
+        mode:
+          enum:
+          - NULLABLE
+          - REQUIRED
+          - REPEATED
+          type: string
+        fields:
+          items:
+            $ref: '#/components/schemas/TableFieldSchema'
+          type: array
+      type: object
+    Job:
+      properties:
+        jobReference:
+          $ref: '#/components/schemas/JobReference'
+        configuration:
+          $ref: '#/components/schemas/Configuration'
+        status:
+          $ref: '#/components/schemas/Status'
+      type: object
+    QueryConfig:
+      properties:
+        query:
+          type: string
+        useLegacySql:
+          type: boolean
+        maximumBytesBilled:
+          format: int64
+          type: string
+        useQueryCache:
+          type: boolean
+        destinationTable:
+          $ref: '#/components/schemas/TableReference'
+      type: object
+    LoadConfig:
+      properties:
+        sourceUris:
+          items:
+            type: string
+          type: array
+        schema:
+          $ref: '#/components/schemas/TableSchema'
+        destinationTable:
+          $ref: '#/components/schemas/TableReference'
+        createDisposition:
+          enum:
+          - CREATE_IF_NEEDED
+          - CREATE_NEVER
+          type: string
+        writeDisposition:
+          enum:
+          - WRITE_TRUNCATE
+          - WRITE_APPEND
+          - WRITE_EMPTY
+          type: string
+      type: object
+    ExtractConfig:
+      properties:
+        destinationUris:
+          items:
+            type: string
+          type: array
+        sourceTable:
+          $ref: '#/components/schemas/TableReference'
+        destinationFormat:
+          enum:
+          - CSV
+          - NEWLINE_DELIMITED_JSON
+          - AVRO
+          - PARQUET
+          type: string
+      type: object
+    QueryRequest:
+      properties:
+        query:
+          type: string
+        maxResults:
+          type: integer
+        defaultDataset:
+          $ref: '#/components/schemas/DatasetReference'
+        useLegacySql:
+          type: boolean
+        useQueryCache:
+          type: boolean
+        dryRun:
+          type: boolean
+      type: object
+    QueryResponse:
+      properties:
+        schema:
+          $ref: '#/components/schemas/TableSchema'
+        rows:
+          items:
+            type: object
+          type: array
+        totalRows:
+          format: int64
+          type: string
+        jobComplete:
+          type: boolean
+        errors:
+          items:
+            $ref: '#/components/schemas/ErrorProto'
+          type: array
+      type: object
+    TableReference:
+      properties:
+        projectId:
+          type: string
+        datasetId:
+          type: string
+        tableId:
+          type: string
+      type: object
+    DatasetReference:
+      properties:
+        projectId:
+          type: string
+        datasetId:
+          type: string
+      type: object
+    ErrorProto:
+      properties:
+        reason:
+          type: string
+        location:
+          type: string
+        debugInfo:
+          type: string
+        message:
+          type: string
+      type: object
+    ListDatasets200response:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/Dataset'
+          type: array
+      type: object
+    ListTables200response:
+      properties:
+        tables:
+          items:
+            $ref: '#/components/schemas/Table'
+          type: array
+      type: object
+    TableSchema:
+      properties:
+        fields:
+          items:
+            $ref: '#/components/schemas/TableFieldSchema'
+          type: array
+      type: object
+    JobReference:
+      properties:
+        projectId:
+          type: string
+        jobId:
+          type: string
+      type: object
+    Configuration:
+      properties:
+        queryConfig:
+          $ref: '#/components/schemas/QueryConfig'
+        loadConfig:
+          $ref: '#/components/schemas/LoadConfig'
+        extractConfig:
+          $ref: '#/components/schemas/ExtractConfig'
+      type: object
+    Status:
+      properties:
+        state:
+          enum:
+          - PENDING
+          - RUNNING
+          - DONE
+          type: string
+        errorResult:
+          $ref: '#/components/schemas/ErrorProto'
+      type: object
+    Error:
+      properties:
+        code:
+          description: HTTP status code
+          type: integer
+        message:
+          description: Error message
+          type: string
+        status:
+          description: Error status
+          type: string
+        details:
+          items:
+            description: Additional error details
+            type: object
+          type: array
+      type: object

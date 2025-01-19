@@ -1,0 +1,16 @@
+@projectId = my-project
+@datasetId = my-dataset
+@tableId = my-table
+
+POST http://localhost:9050/bigquery/v2/projects/{{projectId}}/datasets/{{datasetId}}/tables
+{
+    "type": "TABLE",
+    "tableReference": {
+        "projectId": "{{projectId}}",
+        "datasetId": "{{datasetId}}",
+        "tableId": "{{tableId}}"
+    },
+    "creationTime": "SOMETIME",
+    "lastModifiedTime": "SOMETIME",
+    "expirationTime": "SOMETIME"
+}
